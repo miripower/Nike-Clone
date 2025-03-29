@@ -1,0 +1,136 @@
+<form [formGroup]="AdminForm" (ngSubmit)="onSubmit()"
+  class="max-w-2xl mx-auto p-6 bg-neutral-100 border border-gray-300 rounded-lg">
+  <div class="flex justify-between items-center">
+
+    <div>
+      <h2 class="text-3xl font-bold text-gray-900">Añadir nuevo
+        producto</h2></div>
+    <button type="button"
+      class="cursor-pointer p-2 bg-red-500 rounded-full text-white hover:scale-105 hover:bg-red-700 transition-all"
+      (click)="deleteProduct()">
+      Eliminar
+    </button>
+  </div>
+  <!-- Campo de referencia -->
+  <div class="my-4">
+    <label for="reference"
+      class="block text-sm font-medium text-gray-700 mb-1">Numero de
+      referencia</label>
+    <input type="text" id="reference" formControlName="ReferenceNumber"
+      (input)="onReferenceNumberChange($event)"
+      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black bg-white">
+    <div *ngIf="shouldShowError('ReferenceNumber')"
+      class="text-red-500 text-sm">
+      <p *ngIf="AdminForm.get('ReferenceNumber')?.hasError('required')">Este
+        campo es obligatorio.</p>
+      <p *ngIf="AdminForm.get('ReferenceNumber')?.hasError('min')">La referencia
+        debe empezar por 1.</p>
+    </div>
+  </div>
+
+  <!-- Campo de nombre -->
+  <div class="mb-4">
+    <label for="name"
+      class="block text-sm font-medium text-gray-700 mb-1">Nombre de
+      producto</label>
+    <input type="text" id="name" formControlName="Name"
+      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black bg-white">
+    <div *ngIf="shouldShowError('Name')" class="text-red-500 text-sm">
+      <p *ngIf="AdminForm.get('Name')?.hasError('required')">Este campo es
+        obligatorio.</p>
+      <p *ngIf="AdminForm.get('Name')?.hasError('minlength')">El nombre debe
+        tener al menos 3 caracteres.</p>
+      <p *ngIf="AdminForm.get('Name')?.hasError('maxlength')">El nombre no puede
+        tener más de 50 caracteres.</p>
+      <p *ngIf="AdminForm.get('Name')?.hasError('nameTaken')">El nombre del
+        producto ya está en uso.</p>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <label for="price"
+      class="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+    <input type="number" id="price" formControlName="Price"
+      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black bg-white">
+    <div *ngIf="shouldShowError('Price')" class="text-red-500 text-sm">
+      <p *ngIf="AdminForm.get('Price')?.hasError('required')">Este campo es
+        obligatorio.</p>
+      <p *ngIf="AdminForm.get('Price')?.hasError('min')">El precio no puede ser
+        negativo.</p>
+      <p *ngIf="AdminForm.get('Price')?.hasError('max')">El precio no puede ser
+        mayor a 10,000.</p>
+    </div>
+  </div>
+
+  <!-- Campo de descripción -->
+  <div class="mb-4">
+    <label for="description"
+      class="block text-sm font-medium text-gray-700 mb-1">Descripcion</label>
+    <textarea id="description" formControlName="Description" rows="3"
+      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black bg-white"></textarea>
+    <div *ngIf="shouldShowError('Description')" class="text-red-500 text-sm">
+      <p *ngIf="AdminForm.get('Description')?.hasError('required')">Este campo
+        es obligatorio.</p>
+      <p *ngIf="AdminForm.get('Description')?.hasError('minlength')">La
+        descripción debe tener al menos 10 caracteres.</p>
+      <p *ngIf="AdminForm.get('Description')?.hasError('maxlength')">La
+        descripción no puede tener más de 200 caracteres.</p>
+    </div>
+  </div>
+  <div class="flex justify-between">
+    <div>
+      <label for="onSale"
+        class="block text-sm font-medium text-gray-700 mb-1">En oferta</label>
+      <input type="checkbox" id="onSale" formControlName="OnSale"
+        class="w-5 h-5 bg-white text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+    </div>
+    <div>
+      <label for="Stock"
+        class="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+      <input type="number" id="Stock" formControlName="Stock"
+        class="w-full bg-white px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+    </div>
+  </div>
+
+  <!-- Campo de tipo -->
+  <div class="mb-4">
+    <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Tipo
+      de producto</label>
+    <select id="type" formControlName="Type"
+      class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+      <option value>Seleccione un tipo</option>
+      <option *ngFor="let type of productTypes" [value]="type">{{type}}</option>
+    </select>
+    <div *ngIf="shouldShowError('Type')" class="text-red-500 text-sm">
+      <p *ngIf="AdminForm.get('Type')?.hasError('required')">Este campo es
+        obligatorio.</p>
+    </div>
+  </div>
+
+  <!-- Campo de imagen -->
+  <div class="mb-4">
+    <label for="image"
+      class="block text-sm font-medium text-gray-700 mb-1">Imagen de
+      producto</label>
+    <input type="file" id="image" (change)="onImageChange($event)"
+      accept="image/png, image/jpeg"
+      class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black">
+    <div *ngIf="shouldShowError('Image')" class="text-red-500 text-sm">
+      <p>Este campo es obligatorio.</p>
+    </div>
+
+    <!-- Vista previa de la imagen seleccionada -->
+    <div *ngIf="imageUrl" class="mt-4">
+      <img [src]="imageUrl" alt="Imagen seleccionada"
+        class="w-32 h-32 object-cover" />
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="formSubmitted"
+    class="w-full bg-black text-white py-2.5 rounded-lg hover:bg-gray-800 hover:scale-102 cursor-pointer transition duration-300 mt-4">
+    {{ isEditMode ? 'Actualizar Producto' : 'Agregar Producto' }}
+  </button>
+</form>
+
+<app-modal [message]="modalMessage" [show]="showModal"
+  (close)="showModal = false"></app-modal>

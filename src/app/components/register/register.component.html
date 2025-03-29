@@ -1,0 +1,62 @@
+<div class="max-w-xl mx-auto bg-white">
+
+    <form class="max-w-2xl mx-auto p-6 bg-neutral-100 border border-gray-300 rounded-lg" [formGroup]="registerForm"
+        (ngSubmit)="onSubmit()">
+        <h1 class="text-3xl font-bold mb-6 text-gray-900">Regístrate</h1>
+        <div class="mb-4">
+            <label for="email"
+                class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="text"
+                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                id="email" formControlName="email">
+        </div>
+
+        <div class="mb-4">
+            <label for="password"
+                class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+            <input type="password"
+                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                id="password" formControlName="password">
+            <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" class="text-red-500 text-sm">
+                <p *ngIf="registerForm.get('password')?.hasError('required')">La contraseña es obligatoria.</p>
+                <p *ngIf="registerForm.get('password')?.hasError('minlength')">La contraseña debe tener al menos 8 caracteres.</p>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label for="confirmPassword"
+                class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+            <input type="password"
+                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                id="confirmPassword" formControlName="confirmPassword">
+            <div *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched" class="text-red-500 text-sm">
+                <p *ngIf="registerForm.get('confirmPassword')?.hasError('required')">La confirmación de contraseña es obligatoria.</p>
+                <p *ngIf="registerForm.get('confirmPassword')?.hasError('minlength')">La confirmación de contraseña debe tener al menos 8 caracteres.</p>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label for="role"
+                class="block text-sm font-medium text-gray-700 mb-1">Rol:</label>
+            <select
+                class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                id="role" formControlName="role">
+                <option value>Selecciona un rol</option>
+                <option value="user">Usuario</option>
+                <option value="admin">Administrador</option>
+            </select>
+        </div>
+
+        <div class="flex justify-end">
+            <p>¿Ya tienes cuenta? <a href="javascript:void(0)"
+                    class="hover:underline" (click)="goToLogin()"><strong>Inicia
+                        sesión</strong></a></p>
+        </div>
+
+        <div *ngIf="registerError" class="text-red-600 text-sm mt-2">
+            {{ registerError }}
+        </div>
+        <button type="submit"
+            class="w-full bg-black text-white py-2.5 rounded-lg hover:bg-gray-800 hover:scale-102 cursor-pointer transition duration-300 mt-4">Registrarse</button>
+    </form>
+</div>

@@ -1,0 +1,108 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8  py-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-900">Productos</h1>
+
+    <!-- Si hay un error -->
+    <div *ngIf="productService.error()"
+        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <p>{{ productService.error() }}</p>
+    </div>
+
+    <!-- Si estamos cargando los productos -->
+    <div *ngIf="productService.loading()" class="text-center py-20">
+        <p class="text-xl text-gray-600">Cargando productos...</p>
+    </div>
+
+    <!-- Si no hay productos disponibles -->
+    <div
+        *ngIf="!productService.loading() && !productService.error() && productService.productsSignal().length === 0"
+        class="text-center py-20">
+        <p class="text-xl text-gray-600">No hay productos disponibles</p>
+    </div>
+
+    <!-- Productos -->
+    <div
+        *ngIf="!productService.loading() && productService.productsSignal().length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let product of productService.productsSignal()"
+            class="group relative">
+            <!-- Card Container -->
+            <div
+                class="bg-neutral-100 border border-gray-300 overflow-hidden transition-all duration-300 p-4 rounded-lg shadow-lg group-hover:scale-102 group-hover:shadow-xl">
+                <!-- Image Container -->
+                <div
+                    class="relative aspect-square overflow-hidden bg-white rounded-lg">
+                    <!-- Sale Badge -->
+                    <div *ngIf="product.on_sale"
+                        class="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 z-10 rounded-bl-lg">
+                        OFERTA
+                    </div>
+
+                    <!-- Stock Badge -->
+                    <div *ngIf="product.stock < 5 && product.stock > 0"
+                        class="absolute top-0 left-0 bg-black text-white text-xs font-bold px-3 py-1 z-10 rounded-br-lg">
+                        ÚLTIMAS UNIDADES
+                    </div>
+
+                    <!-- Out of Stock Overlay -->
+                    <div *ngIf="product.stock === 0"
+                        class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+                        <span
+                            class="text-white font-bold text-lg">AGOTADO</span>
+                    </div>
+
+                    <!-- Product Image -->
+                    <img
+                        [src]="product.image_url"
+                        [alt]="product.name"
+                        class="w-full h-full object-cover transition-transform duration-500">
+                </div>
+
+                <!-- Product Info -->
+                <div class="py-4">
+                    <!-- Reference Number -->
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-xs text-gray-500">Ref: {{
+                            product.reference_number }}</p>
+                        <div *ngIf="product.on_sale"
+                            class="text-red-600 text-xs font-bold">-20%</div>
+                    </div>
+
+                    <!-- Product Name -->
+                    <h2
+                        class="text-base font-bold text-gray-900 mb-1 line-clamp-1">{{
+                        product.name }}</h2>
+
+                    <!-- Product Type -->
+                    <p class="text-sm text-gray-600 mb-2">{{ product.type }}</p>
+
+                    <!-- Product Description -->
+                    <p class="text-xs text-gray-500 mb-3 line-clamp-2">{{
+                        product.description }}</p>
+
+                    <!-- Price -->
+                    <div class="flex items-center gap-2">
+                        <p class="text-lg font-bold text-gray-900">{{
+                            product.price | currency:'EUR' }}</p>
+                        <p *ngIf="product.on_sale"
+                            class="text-sm text-gray-500 line-through">{{
+                            product.price * 1.2 | currency:'EUR' }}</p>
+                    </div>
+                </div>
+
+                <!-- Add to Cart Button -->
+                <div *ngIf="isLoggedIn()">
+                    <button
+                        [disabled]="product.stock === 0"
+                        (click)="addToCart(product)"
+                        [ngClass]="{'opacity-50 cursor-not-allowed': product.stock === 0}"
+                        class="w-full bg-black text-white py-2.5 rounded-lg hover:bg-gray-800 hover:scale-102 cursor-pointer transition duration-300">
+                        {{ product.stock === 0 ? 'Agotado' : 'Añadir a la cesta'
+                        }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <app-modal [message]="modalMessage" [show]="showModal"
+        (close)="showModal = false"></app-modal>
+</div>
