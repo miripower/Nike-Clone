@@ -76,13 +76,17 @@ export class AuthService {
     return this.roleSignal();
   }
 
-  getUserId() {
-    return this.userIdSignal(); 
+  getUserId(): number | null {
+    const user = this.getCurrentUser();
+    return user ? user.id : null;
   }
 
   isLoggedIn(): boolean {
-    const token = localStorage.getItem('token'); // Verifica si hay un token en el almacenamiento local
-    return !!token; // Devuelve true si el token existe, false en caso contrario
+    if (typeof window === 'undefined') {
+      return false; 
+    }
+    const token = localStorage.getItem('token');
+    return !!token; 
   }
 
   getCurrentUser(): { id: number | null; email: string | null; role: string | null } {

@@ -213,21 +213,35 @@ export class AdminComponent {
       alert("Por favor, selecciona una imagen antes de enviar el formulario.");
       return;
     }
-
+  
     try {
-      const filePath = `products/${this.selectedFile.name}`;
+      const fileExt = this.selectedFile.name.split('.').pop(); // Obtener la extensión del archivo
+      const fileName = `${Date.now()}.${fileExt}`; // Nombre único basado en la fecha actual
+      const filePath = `products/${fileName}`; // Ruta de almacenamiento en Supabase
+  
       const { data, error } = await this.supabase.storage
-        .from("v1")
+        .from("v1") // Asegúrate de que "v1" es el bucket correcto
         .upload(filePath, this.selectedFile, { upsert: true });
-
+  
       if (error) throw error;
-
-      this.imageUrl = `https://gaasfmgwkrjjjzfxsyao.supabase.co/storage/v1/object/public/v1/${data.path}`;
+  
+      // Generar la URL pública de la imagen
+      const { data: publicURLData } = this.supabase.storage
+        .from("v1")
+        .getPublicUrl(filePath);
+  
+      if (!publicURLData.publicUrl) {
+        throw new Error("No se pudo obtener la URL pública de la imagen.");
+      }
+  
+      this.imageUrl = publicURLData.publicUrl;
+  
       console.log("Imagen subida con éxito:", this.imageUrl);
     } catch (error) {
       console.error("Error al subir la imagen:", error);
     }
   }
+  
 
   deleteProduct() {
     const referenceNumber = this.AdminForm.value.ReferenceNumber;

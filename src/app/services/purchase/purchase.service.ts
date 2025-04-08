@@ -30,52 +30,52 @@ export class PurchaseService {
   fetchPurchases(): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
-
+  
     const userId = this.authService.getUserId();
-
+  
     const headers = {
       'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      'userId': `${userId}` 
+      'userId': `${userId}`
     };
-
-    this.http.get<PurchaseResponse>(`${this.apiUrl}/compras`,  { headers }).subscribe({
+  
+    this.http.get<PurchaseResponse>(`${this.apiUrl}/compras`, { headers }).subscribe({
       next: (response) => {
-        const purchases = response.purchases;
-
+        let purchases = response.purchases;
+  
+        // Ordenar las compras por fecha descendente
+        purchases = purchases.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  
         if (purchases.length === 0) {
           this.purchasesSignal.set([]);
           this.loadingSignal.set(false);
           return;
         }
-
+  
         // Obtener los ítems de cada compra
         const itemRequests = purchases.map((purchase) =>
-          this.http.get<ItemResponse>(`${this.apiUrl}/compras/${purchase.id}/items`, { headers }), 
+          this.http.get<ItemResponse>(`${this.apiUrl}/compras/${purchase.id}/items`, { headers }),
         );
-
+  
         // Esperar que todas las solicitudes de ítems se completen
         forkJoin(itemRequests).subscribe({
           next: (itemsResponses) => {
-            // Asignar los ítems a las compras
             const purchasesWithItems = purchases.map((purchase, index) => {
               const items = itemsResponses[index].items;
               return { ...purchase, items: items };
             });
-
-            // Actualizar la señal de compras
+  
             this.purchasesSignal.set(purchasesWithItems);
-            
             this.loadingSignal.set(false);
           },
           error: (err) => {
-            console.error("❌ Error al obtener los ítems:", err);
+            console.error("Error al obtener los ítems:", err);
             this.errorSignal.set("Error al obtener los ítems");
             this.loadingSignal.set(false);
           },
         });
       },
       error: (err) => {
-        console.error("❌ Error al obtener las compras:", err);
+        console.error("Error al obtener las compras:", err);
         this.errorSignal.set("Error al obtener las compras");
         this.loadingSignal.set(false);
       },

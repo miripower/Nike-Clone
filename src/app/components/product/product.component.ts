@@ -38,8 +38,9 @@ export class ProductComponent implements OnInit {
   }
 
   isLoggedIn(): boolean {
-    const loggedIn = this.authService.isLoggedIn();
-    console.log('Usuario autenticado:', loggedIn);
-    return loggedIn;
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return this.authService.isLoggedIn();
   }
 }

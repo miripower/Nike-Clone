@@ -52,8 +52,35 @@ app.post(
   },
 )
 
+app.get('/api/users/:id', async (req: Request, res: Response): Promise<void> => {
+  const userId = Number(req.params.id);
+
+  if (isNaN(userId)) {
+    res.status(400).json({ error: 'ID de usuario inválido.' });
+    return;
+  }
+
+  try {
+    const user = await db
+      .selectFrom('users')
+      .select(['email'])
+      .where('id', '=', userId)
+      .executeTakeFirst();
+
+    if (!user) {
+      res.status(404).json({ error: 'Usuario no encontrado.' });
+      return;
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error al obtener los datos del usuario:', error);
+    res.status(500).json({ error: 'Error al obtener los datos del usuario.' });
+  }
+});
+
 app.put('/api/users/profile', async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body;
+  const { email, password, currentPassword } = req.body;
   const userId = req.headers['userid'];
 
   if (!userId) {
@@ -62,6 +89,18 @@ app.put('/api/users/profile', async (req: Request, res: Response): Promise<void>
   }
 
   try {
+    // Verificar la contraseña actual
+    const user = await db
+      .selectFrom('users')
+      .select(['password'])
+      .where('id', '=', Number(userId))
+      .executeTakeFirst();
+
+    if (!user || !(await bcrypt.compare(currentPassword, user.password))) {
+      res.status(401).json({ error: 'La contraseña actual es incorrecta.' });
+      return;
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const updatedUser = await db
@@ -375,7 +414,7 @@ app.post("/api/carrito/comprar", async (req: Request, res: Response): Promise<vo
 
 
 function cleanupExpiredCartItems() {
-  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000); // 10 minutos
+  const tenMinutesAgo = new Date(Date.now() - 1 * 60 * 1000); // 10 minutos
   console.log("Items to delete before:", tenMinutesAgo); // Ver qué fecha se está utilizando
 
   db.deleteFrom("shopping_cart")
@@ -389,7 +428,6 @@ function cleanupExpiredCartItems() {
 
 
 setInterval(() => {
-
   cleanupExpiredCartItems();
 }, 60 * 1000);
 
