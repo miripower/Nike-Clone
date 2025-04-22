@@ -63,6 +63,24 @@ export class ProductService {
     })
   }
 
+  //versión sin API
+  addProduct(product: Product): void {
+    this.loading.set(true)
+    this.error.set(null)
+
+    this.http.post<{ message: string; product: Product }>(`${this.apiUrl}/products`, product).subscribe({
+      next: (response) => {
+        this.productsSignal.update((products) => [...products, response.product])
+        this.loading.set(false)
+      },
+      error: (err) => {
+        console.error("Error al crear el producto en API:", err)
+        this.productsSignal.update((products) => [...products, product])
+        this.loading.set(false)
+      },
+    })
+  }
+
   // Actualizar un producto existente
   updateProduct(referenceNumber: number, updatedData: Partial<Product>): Promise<void> {
     return new Promise((resolve, reject) => {
