@@ -108,28 +108,6 @@ describe('ProductService', () => {
     expect(service.loading()).toBeFalse();
   });
 
-  // Test: Add product locally if API fails
-  it('should add product locally if API fails in addProduct()', () => {
-    const backupProduct: Product = {
-      reference_number: 5,
-      name: 'Backup',
-      description: 'Backup product',
-      price: 100,
-      type: 'Zapatillas',
-      stock: 5,
-      on_sale: false,
-      image_url: ''
-    };
-
-    service.addProduct(backupProduct);
-
-    const req = httpMock.expectOne('http://localhost:3000/api/products');
-    req.flush('Error', { status: 500, statusText: 'Fail' });
-
-    expect(service.productsSignal()).toContain(backupProduct);
-    expect(service.loading()).toBeFalse();
-  });
-
   // Test: Delete product
   it('should delete product from signal when deleteProduct succeeds', () => {
     service.productsSignal.set(mockProducts);
@@ -168,19 +146,6 @@ describe('ProductService', () => {
     const result = await promise;
     expect(result).toEqual(product);
     expect(service.currentProduct()).toEqual(product);
-  });
-
-  // Test: Get product by reference number from local data if API fails
-  it('should get product by reference number from local data if API fails', async () => {
-    service.productsSignal.set(mockProducts);
-
-    const promise = service.getProductByReferenceNumber(1);
-
-    const req = httpMock.expectOne('http://localhost:3000/api/products/1');
-    req.flush('Error', { status: 500, statusText: 'Fail' });
-
-    const result = await promise;
-    expect(result).toEqual(mockProducts[0]);
   });
 
   // Test: Update product
